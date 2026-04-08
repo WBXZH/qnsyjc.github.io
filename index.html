@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青年生育决策：生育还是生郁？</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: #2c3e50;
+            border-left: 5px solid #6a11cb;
+            padding-left: 15px;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2 .section-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .chart-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-col {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .insight {
+            background-color: #f0f7ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #2575fc;
+        }
+        
+        .insight h3 {
+            color: #2575fc;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .insight h3 .icon {
+            margin-right: 8px;
+        }
+        
+        .highlight {
+            color: #6a11cb;
+            font-weight: bold;
+        }
+        
+        .data-point {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .data-point:last-child {
+            border-bottom: none;
+        }
+        
+        .data-label {
+            flex: 1;
+            font-weight: 600;
+        }
+        
+        .data-value {
+            background-color: #6a11cb;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .trend-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .trend-table th {
+            background-color: #6a11cb;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .trend-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .trend-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .trend-table tr:hover {
+            background-color: #f0f7ff;
+        }
+        
+        .trend-table .increase {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .trend-table .decrease {
+            color: #F44336;
+            font-weight: bold;
+        }
+        
+        .year-filter {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .year-btn {
+            padding: 8px 16px;
+            background-color: #e9ecef;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .year-btn:hover {
+            background-color: #2575fc;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .year-btn.active {
+            background-color: #6a11cb;
+            color: white;
+        }
+        
+        .comparison-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .comparison-box {
+            flex: 1;
+            min-width: 300px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .comparison-box h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #6a11cb;
+        }
+        
+        .conclusion {
+            background: linear-gradient(to right, #f8f9fa, #e3f2fd);
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #bbdefb;
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: #6a11cb;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 3px;
+        }
+        
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        
+        .timeline-item:nth-child(odd) {
+            left: 0;
+        }
+        
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+        
+        .timeline-content {
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-year {
+            font-weight: bold;
+            color: #6a11cb;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-population {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .timeline-item:nth-child(odd)::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -13px;
+            background-color: white;
+            border: 4px solid #6a11cb;
+            top: 25px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .timeline-item:nth-child(even)::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: -13px;
+            background-color: white;
+            border: 4px solid #6a11cb;
+            top: 25px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            background-color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        
+        .nav-tab:hover {
+            background-color: #2575fc;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .nav-tab.active {
+            background-color: #6a11cb;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            section {
+                padding: 20px;
+            }
+            
+            .chart-col {
+                min-width: 100%;
+            }
+            
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+            
+            .timeline-item:nth-child(odd)::after,
+            .timeline-item:nth-child(even)::after {
+                left: 21px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>青年生育决策：生育还是生郁？</h1>
+        <p class="subtitle">解析当代青年的生育观念、决策因素与未来展望</p>
+        <div class="nav-tabs" id="mainTabs">
+            <button class="nav-tab active" data-tab="survey">青年生育决策调查</button>
+            <button class="nav-tab" data-tab="trend">近十年出生人口趋势</button>
+            <button class="nav-tab" data-tab="comparison">调查与趋势对比分析</button>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- 青年生育决策调查内容 -->
+        <div id="survey" class="tab-content active">
+            <!-- 开篇引言 -->
+            <section>
+                <h2><span class="section-icon">📊</span> 开篇引言</h2>
+                <p>在传统观念中，"成家立业，生儿育女"似乎是人生必经的路径。然而，对于今天的中国青年而言，"生"不再是一种必然，而是一道充满权衡的选择题。一边是家庭的情感圆满与生命延续的召唤，另一边是经济压力、职业挑战与个人发展的现实考量。</p>
+                <p>"生育"到"生郁"的转变是一代人的集体心态映照。"生"与"不生"之间是未来的不确定和现实的重压，当代青年们如何在个体选择与社会期待之间寻找平衡？</p>
+            </section>
+            
+            <!-- 样本基本情况 -->
+            <section>
+                <h2><span class="section-icon">👥</span> 一、调查样本基本情况</h2>
+                <div class="chart-row">
+                    <div class="chart-col">
+                        <div class="chart-container">
+                            <canvas id="genderChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-col">
+                        <div class="chart-container">
+                            <canvas id="ageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">🔍</span> 数据洞察</h3>
+                    <p>本次调查共回收有效样本<span class="highlight">312份</span>，其中男性占<span class="highlight">70.83%</span>，女性占<span class="highlight">29.17%</span>。年龄集中在<span class="highlight">23-26岁</span>（占62.5%），是当代青年的核心群体。</p>
+                </div>
+            </section>
+            
+            <!-- 婚恋观念与择偶标准 -->
+            <section>
+                <h2><span class="section-icon">💑</span> 二、婚恋观念变迁：从"成家立业"到"先业后家"</h2>
+                <div class="chart-row">
+                    <div class="chart-col">
+                        <div class="chart-container">
+                            <canvas id="datingCriteriaChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-col">
+                        <div class="chart-container">
+                            <canvas id="datingDurationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">📈</span> 主要发现</h3>
+                    <p>青年更注重精神契合与人格特质，<span class="highlight">66.67%</span>将"性格与品行"视为择偶首要标准，而经济条件仅占<span class="highlight">22.44%</span>，不再是婚姻的"硬通货"。</p>
+                    <p>近半数青年认为理想恋爱时长应在<span class="highlight">3-5年</span>，反映对长期稳定关系的期待，"慢慢来"成为常见心态。</p>
+                </div>
+            </section>
+            
+            <!-- 婚姻与生育意愿 -->
+            <section>
+                <h2><span class="section-icon">👶</span> 三、生育意愿低迷：理性计算下的"被动延迟"</h2>
+                <div class="chart-row">
+                    <div class="chart-col">
+                        <div class="chart-container">
+                            <canvas id="fertilityDesireChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-col">
+                        <div class="chart-container">
+                            <canvas id="childNumberChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">📊</span> 关键数据</h3>
+                    <div class="data-point">
+                        <div class="data-label">"看婚后实际情况决定"是否生育</div>
+                        <div class="data-value">40.71%</div>
+                    </div>
+                    <div class="data-point">
+                        <div class="data-label">倾向于不生育</div>
+                        <div class="data-value">29.17%</div>
+                    </div>
+                    <div class="data-point">
+                        <div class="data-label">理想生育年龄在30岁以上</div>
+                        <div class="data-value">52.88%</div>
+                    </div>
+                    <div class="data-point">
+                        <div class="data-label">希望只生一个孩子</div>
+                        <div class="data-value">75.32%</div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 生育意义重构 -->
+            <section>
+                <h2><span class="section-icon">💭</span> 四、生育意义重构：从"传宗接代"到"情感体验"</h2>
+                <div class="chart-container">
+                    <canvas id="fertilityMeaningChart"></canvas>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">🔄</span> 观念转变</h3>
+                    <p><span class="highlight">74.04%</span>的青年认为生育的主要意义是"爱的结晶与情感纽带"，而传统功能如"养老保障"（46.79%）和"完成长辈期待"（30.45%）相对弱化。</p>
+                    <p><span class="highlight">85.26%</span>认为"婚恋与生育应保持独立，生育不是婚恋的必然结果"，显示生育与婚姻逐渐"解绑"。</p>
+                </div>
+            </section>
+            
+            <!-- 生育决策影响因素 -->
+            <section>
+                <h2><span class="section-icon">⚖️</span> 五、压力来源：经济、时间与社会支持的"三重门"</h2>
+                <div class="chart-container">
+                    <canvas id="fertilityFactorsChart"></canvas>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">🎯</span> 主要制约因素</h3>
+                    <p><span class="highlight">经济压力</span>高居首位（72.76%），"生得起，养不起"成为普遍心结。其次是时间精力（49.68%）和住房、教育等公共资源配套（47.44%）。</p>
+                    <p><span class="highlight">66.67%</span>的青年希望依靠父母帮助带孩子，折射出公共托育体系与社会化育儿服务的缺失。</p>
+                </div>
+            </section>
+            
+            <!-- 政策认知与观念塑造 -->
+            <section>
+                <h2><span class="section-icon">🏛️</span> 六、政策与观念：在知晓与行动之间</h2>
+                <div class="chart-row">
+                    <div class="chart-col">
+                        <div class="chart-container">
+                            <canvas id="policyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-col">
+                        <div class="chart-container">
+                            <canvas id="viewFactorsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">🧠</span> 认知现状</h3>
+                    <p>虽然<span class="highlight">87.82%</span>对生育扶持政策"部分了解"，但仅<span class="highlight">4.49%</span>"非常了解"，政策认知呈现"浅层化"。</p>
+                    <p><span class="highlight">家庭环境与长辈观念</span>（80.45%）和<span class="highlight">个人成长经历与价值观</span>（69.23%）是影响青年婚育观的主要因素。</p>
+                </div>
+            </section>
+        </div>
+        
+        <!-- 近十年出生人口趋势内容 -->
+        <div id="trend" class="tab-content">
+            <section>
+                <h2><span class="section-icon">📉</span> 近十年中国出生人口趋势（2016-2025）</h2>
+                <p>近十年中国出生人口呈"先升后降、长期下滑"走势，2016年达峰值1883万，2022年跌破千万，2024年小幅回升，2025年再回落；十年间近乎腰斩，仅2024年为唯一回升年。</p>
+                
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="birthTrendChart"></canvas>
+                </div>
+                
+                <div class="year-filter" id="yearFilter">
+                    <button class="year-btn active" data-year="all">全部年份</button>
+                    <button class="year-btn" data-year="2016">2016</button>
+                    <button class="year-btn" data-year="2017">2017</button>
+                    <button class="year-btn" data-year="2018">2018</button>
+                    <button class="year-btn" data-year="2019">2019</button>
+                    <button class="year-btn" data-year="2020">2020</button>
+                    <button class="year-btn" data-year="2021">2021</button>
+                    <button class="year-btn" data-year="2022">2022</button>
+                    <button class="year-btn" data-year="2023">2023</button>
+                    <button class="year-btn" data-year="2024">2024</button>
+                    <button class="year-btn" data-year="2025">2025</button>
+                </div>
+                
+                <table class="trend-table">
+                    <thead>
+                        <tr>
+                            <th>年份</th>
+                            <th>出生人口（万人）</th>
+                            <th>同比变化</th>
+                            <th>关键特征</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trendTableBody">
+                        <!-- 表格内容由JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2016年</div>
+                            <div class="timeline-population">1883万</div>
+                            <p>全面二孩政策后峰值，十年最高</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2017年</div>
+                            <div class="timeline-population">1765万</div>
+                            <p>开始回落，仍处高位</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2018年</div>
+                            <div class="timeline-population">1523万</div>
+                            <p>降幅扩大</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2019年</div>
+                            <div class="timeline-population">1465万</div>
+                            <p>小幅下降</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2020年</div>
+                            <div class="timeline-population">1202万</div>
+                            <p>疫情影响，大幅下滑</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2021年</div>
+                            <div class="timeline-population">1062万</div>
+                            <p>持续走低</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2022年</div>
+                            <div class="timeline-population">956万</div>
+                            <p>首次跌破千万</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2023年</div>
+                            <div class="timeline-population">902万</div>
+                            <p>连续7年下降，创历史新低</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2024年</div>
+                            <div class="timeline-population">954万</div>
+                            <p>7年来首次回升，龙年效应+政策累积</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2025年</div>
+                            <div class="timeline-population">792万</div>
+                            <p>重回下降通道，创十年新低</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">📊</span> 核心趋势分析</h3>
+                    <p><strong>1. 政策短暂提振后持续下滑：</strong>2016年全面二孩推高至峰值，此后除2024年外持续下降，十年降幅超50%。</p>
+                    <p><strong>2. 关键节点突破：</strong>2022年跌破千万，标志出生人口进入新台阶；2023年降至902万为历史低点；2024年龙年叠加政策效果，出现唯一回升。</p>
+                    <p><strong>3. 长期下行压力未减：</strong>2025年预测再降，主因育龄妇女减少（尤其生育旺盛期）、生育成本高、观念转变等结构性因素持续影响。</p>
+                    <p><strong>4. 人口自然增长转负：</strong>2022年起人口自然增长率为负，出生人口低于死亡人口，人口总量开始减少。</p>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">🔍</span> 趋势成因要点</h3>
+                    <ul>
+                        <li><strong>政策因素：</strong>2016全面二孩短期推高，2021三孩及配套支持起效慢。</li>
+                        <li><strong>人口结构：</strong>1990年代后出生人口减少，导致当前育龄妇女规模萎缩。</li>
+                        <li><strong>社会经济：</strong>育儿成本高、房价压力大、女性职场竞争加剧，抑制生育意愿。</li>
+                        <li><strong>观念变化：</strong>年轻人更注重个人发展，晚婚晚育、少生优育成主流。</li>
+                        <li><strong>特殊事件：</strong>2020年疫情冲击生育计划，2024年龙年生肖偏好带来小幅反弹。</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+        
+        <!-- 调查与趋势对比分析内容 -->
+        <div id="comparison" class="tab-content">
+            <section>
+                <h2><span class="section-icon">🔄</span> 调查数据与人口趋势对比分析</h2>
+                <p>将青年生育决策调查结果与近十年出生人口趋势相结合，我们可以发现两者之间存在着显著的相关性和一致性。</p>
+                
+                <div class="comparison-section">
+                    <div class="comparison-box">
+                        <h3>青年生育意愿与人口趋势</h3>
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="comparisonChart1"></canvas>
+                        </div>
+                        <p><strong>关键发现：</strong>调查显示仅有26.28%的青年有生育意愿，与出生人口持续下降的趋势高度吻合。青年生育意愿低迷是出生人口下降的重要前置因素。</p>
+                    </div>
+                    
+                    <div class="comparison-box">
+                        <h3>经济压力与人口变化</h3>
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="comparisonChart2"></canvas>
+                        </div>
+                        <p><strong>关键发现：</strong>72.76%的青年将经济压力列为影响生育决策的首要因素，这与出生人口下降最快的时期（2020-2022年）经济不确定性增加的时期相吻合。</p>
+                    </div>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">💡</span> 综合分析</h3>
+                    <p><strong>1. 观念转变先行于人口变化：</strong>青年生育观念的转变（从"传宗接代"到"情感体验"）早在出生人口大幅下降之前就已发生，是人口趋势变化的前兆。</p>
+                    <p><strong>2. 经济压力是核心抑制因素：</strong>调查中经济压力高居影响因素首位，与出生人口在经济压力增大的时期下降最快的趋势一致。</p>
+                    <p><strong>3. "少子化"观念与"一孩"偏好：</strong>75.32%的青年希望只生一个孩子，这与出生人口持续下降、总和生育率低于更替水平的趋势相呼应。</p>
+                    <p><strong>4. 政策认知与实施效果：</strong>虽然87.82%的青年对生育政策有所了解，但仅4.49%非常了解，表明政策宣传与落地效果之间存在差距，影响政策效果。</p>
+                </div>
+                
+                <div class="insight">
+                    <h3><span class="icon">📈</span> 未来趋势预测</h3>
+                    <p>基于青年生育决策调查结果和近年出生人口趋势，我们可以预测：</p>
+                    <ul>
+                        <li>出生人口在短暂反弹（2024年）后将继续下行趋势</li>
+                        <li>青年生育年龄将进一步推迟，平均初育年龄可能超过30岁</li>
+                        <li>"一孩"家庭将成为绝对主流，多孩家庭比例继续下降</li>
+                        <li>经济压力仍是制约生育意愿的首要因素，需要系统性解决方案</li>
+                        <li>政策效果显现需要时间，且需要更精准地针对青年核心关切</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+        
+        <!-- 结论 -->
+        <section>
+            <h2><span class="section-icon">🎯</span> 结论：构建"愿生、敢生、能养"的社会支持体系</h2>
+            <div class="conclusion">
+                <p>当代青年的生育决策，如同一面多棱镜，折射出个体理性、社会结构、文化变迁与经济现实的多重光彩。从"生育"到"生郁"，其背后是一代人在时代浪潮中的权衡与挣扎。</p>
+                <p>结合青年生育决策调查与近十年出生人口趋势，我们发现青年生育意愿低迷与经济压力、观念转变密切相关，且已成为影响人口长期发展的关键因素。</p>
+                <p>推动青年生育意愿提升，需从经济支持、职业发展、社会服务、文化环境等多维度系统施策：</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>减轻经济负担：</strong>提高育儿补贴标准，降低教育、住房成本</li>
+                    <li><strong>完善职业支持：</strong>推动企业落实家庭友好政策，加强男性育儿假制度</li>
+                    <li><strong>构建育儿支持体系：</strong>发展普惠性托育服务，提高社区托育设施覆盖率</li>
+                    <li><strong>加强政策宣传：</strong>通过新媒体平台开展政策解读，增强政策的针对性与接受度</li>
+                    <li><strong>改善生育观念环境：</strong>倡导多元家庭观，减轻青年生育的心理压力</li>
+                </ul>
+                <p style="margin-top: 15px;">唯有在经济上减负、在职业上松绑、在服务上支撑、在观念上包容，才能真正疏解青年的"生育焦虑"，让"生"不再是沉重负担，而成为可愿、敢为、能享的生命选择。</p>
+            </div>
+        </section>
+        
+        <footer>
+            <p>数据来源：青年生育观调查问卷（样本量：312） & 国家统计局出生人口数据（2016-2025）</p>
+            <p>数据收集时间：2025年</p>
+        </footer>
+    </div>
+
+    <script>
+        // 等待页面加载完成后初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 颜色配置
+            const colorPalette = {
+                primary: ['#6a11cb', '#2575fc', '#3a7bd5', '#00d2ff', '#5ee7df'],
+                secondary: ['#ff9a9e', '#fad0c4', '#fbc2eb', '#a6c1ee', '#d4fc79'],
+                gray: ['#e0e0e0', '#bdbdbd', '#9e9e9e', '#757575']
+            };
+            
+            // 标签切换功能
+            const tabs = document.querySelectorAll('.nav-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 移除所有标签和内容的active类
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // 激活当前标签和对应内容
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 年份筛选功能
+            const yearButtons = document.querySelectorAll('.year-btn');
+            yearButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    yearButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const year = btn.getAttribute('data-year');
+                    filterTrendChart(year);
+                });
+            });
+            
+            // 近十年出生人口数据
+            const birthData = [
+                { year: 2016, population: 1883, change: '+13.8%', feature: '全面二孩政策后峰值，十年最高' },
+                { year: 2017, population: 1765, change: '-6.3%', feature: '开始回落，仍处高位' },
+                { year: 2018, population: 1523, change: '-13.7%', feature: '降幅扩大' },
+                { year: 2019, population: 1465, change: '-3.8%', feature: '小幅下降' },
+                { year: 2020, population: 1202, change: '-17.9%', feature: '疫情影响，大幅下滑' },
+                { year: 2021, population: 1062, change: '-11.7%', feature: '持续走低' },
+                { year: 2022, population: 956, change: '-9.9%', feature: '首次跌破千万' },
+                { year: 2023, population: 902, change: '-5.6%', feature: '连续7年下降，创历史新低' },
+                { year: 2024, population: 954, change: '+5.8%', feature: '7年来首次回升，龙年效应+政策累积' },
+                { year: 2025, population: 792, change: '-17.0%', feature: '重回下降通道，创十年新低' }
+            ];
+            
+            // 填充趋势表格
+            const trendTableBody = document.getElementById('trendTableBody');
+            birthData.forEach(item => {
+                const row = document.createElement('tr');
+                const changeClass = item.change.includes('+') ? 'increase' : 'decrease';
+                
+                row.innerHTML = `
+                    <td>${item.year}</td>
+                    <td>${item.population}</td>
+                    <td class="${changeClass}">${item.change}</td>
+                    <td>${item.feature}</td>
+                `;
+                trendTableBody.appendChild(row);
+            });
+            
+            // 1. 性别分布图
+            const genderCtx = document.getElementById('genderChart').getContext('2d');
+            new Chart(genderCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['男性', '女性'],
+                    datasets: [{
+                        data: [70.83, 29.17],
+                        backgroundColor: [colorPalette.primary[0], colorPalette.primary[1]],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '性别分布',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 2. 年龄结构图
+            const ageCtx = document.getElementById('ageChart').getContext('2d');
+            new Chart(ageCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['18-22岁', '23-26岁', '27-30岁', '31-34岁'],
+                    datasets: [{
+                        label: '占比(%)',
+                        data: [8.65, 62.5, 25.96, 2.88],
+                        backgroundColor: colorPalette.primary,
+                        borderColor: colorPalette.primary.map(color => color.replace('0.8', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '年龄结构分布',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `占比: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 70,
+                            title: {
+                                display: true,
+                                text: '百分比(%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '年龄段'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 3. 择偶标准图
+            const datingCriteriaCtx = document.getElementById('datingCriteriaChart').getContext('2d');
+            new Chart(datingCriteriaCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['性格与品行', '价值观一致', '兴趣爱好匹配', '经济条件', '学历学识'],
+                    datasets: [{
+                        label: '占比(%)',
+                        data: [66.67, 57.69, 39.74, 22.44, 18.59],
+                        backgroundColor: colorPalette.secondary,
+                        borderColor: colorPalette.secondary.map(color => color.replace('0.8', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '择偶标准（多选）',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `占比: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 80,
+                            title: {
+                                display: true,
+                                text: '百分比(%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 4. 理想恋爱时长
+            const datingDurationCtx = document.getElementById('datingDurationChart').getContext('2d');
+            new Chart(datingDurationCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['3-5年', '1-3年', '5年以上', '不设限，顺其自然'],
+                    datasets: [{
+                        data: [49.68, 22.12, 16.35, 8.33],
+                        backgroundColor: [
+                            colorPalette.primary[0],
+                            colorPalette.primary[1],
+                            colorPalette.primary[2],
+                            colorPalette.gray[2]
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '理想恋爱时长',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 5. 生育意愿
+            const fertilityDesireCtx = document.getElementById('fertilityDesireChart').getContext('2d');
+            new Chart(fertilityDesireCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['看婚后实际情况决定', '倾向于不生', '有生育意愿', '有强烈生育意愿'],
+                    datasets: [{
+                        data: [40.71, 29.17, 26.28, 2.56],
+                        backgroundColor: [
+                            colorPalette.primary[1],
+                            colorPalette.gray[1],
+                            colorPalette.primary[0],
+                            colorPalette.secondary[0]
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '生育意愿分布',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 6. 理想子女数量
+            const childNumberCtx = document.getElementById('childNumberChart').getContext('2d');
+            new Chart(childNumberCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['1个', '2个', '3个及以上'],
+                    datasets: [{
+                        data: [75.32, 21.15, 3.53],
+                        backgroundColor: [
+                            colorPalette.primary[0],
+                            colorPalette.primary[1],
+                            colorPalette.gray[1]
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '理想子女数量',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 7. 生育意义认知
+            const fertilityMeaningCtx = document.getElementById('fertilityMeaningChart').getContext('2d');
+            new Chart(fertilityMeaningCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['爱的结晶与情感纽带', '体验为人父母的责任与快乐', '家庭完整与传承', '养老保障', '完成长辈期待', '为社会提供劳动力'],
+                    datasets: [{
+                        label: '占比(%)',
+                        data: [74.04, 67.31, 52.88, 46.79, 30.45, 27.88],
+                        backgroundColor: colorPalette.primary,
+                        borderColor: colorPalette.primary.map(color => color.replace('0.8', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '生育的主要意义认知（多选）',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `占比: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 80,
+                            title: {
+                                display: true,
+                                text: '百分比(%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 8. 生育决策影响因素
+            const fertilityFactorsCtx = document.getElementById('fertilityFactorsChart').getContext('2d');
+            new Chart(fertilityFactorsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['经济压力', '时间精力', '公共资源配套', '伴侣意愿', '长辈期待', '职业规划'],
+                    datasets: [{
+                        label: '占比(%)',
+                        data: [72.76, 49.68, 47.44, 42.95, 33.65, 21.47],
+                        backgroundColor: colorPalette.secondary,
+                        borderColor: colorPalette.secondary.map(color => color.replace('0.8', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '影响生育决策的主要因素（多选）',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `占比: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 80,
+                            title: {
+                                display: true,
+                                text: '百分比(%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '影响因素'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 9. 政策了解程度
+            const policyCtx = document.getElementById('policyChart').getContext('2d');
+            new Chart(policyCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['部分了解', '完全不了解', '非常了解'],
+                    datasets: [{
+                        data: [87.82, 7.69, 4.49],
+                        backgroundColor: [
+                            colorPalette.primary[0],
+                            colorPalette.gray[1],
+                            colorPalette.secondary[0]
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '对国家生育扶持政策的了解程度',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 10. 婚育观影响因素
+            const viewFactorsCtx = document.getElementById('viewFactorsChart').getContext('2d');
+            new Chart(viewFactorsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['家庭环境与长辈观念', '个人经历与价值观', '学校与同辈影响', '经济社会发展', '媒体与网络信息'],
+                    datasets: [{
+                        label: '占比(%)',
+                        data: [80.45, 69.23, 56.41, 52.24, 40.71],
+                        backgroundColor: colorPalette.primary,
+                        borderColor: colorPalette.primary.map(color => color.replace('0.8', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '影响青年婚育观的主要因素（多选）',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `占比: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 90,
+                            title: {
+                                display: true,
+                                text: '百分比(%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 11. 近十年出生人口趋势图
+            const birthTrendCtx = document.getElementById('birthTrendChart').getContext('2d');
+            const birthTrendChart = new Chart(birthTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: birthData.map(item => item.year),
+                    datasets: [{
+                        label: '出生人口（万人）',
+                        data: birthData.map(item => item.population),
+                        backgroundColor: 'rgba(106, 17, 203, 0.1)',
+                        borderColor: colorPalette.primary[0],
+                        borderWidth: 3,
+                        pointBackgroundColor: birthData.map(item => {
+                            if (item.year === 2016) return colorPalette.secondary[0]; // 峰值
+                            if (item.year === 2022) return colorPalette.secondary[1]; // 跌破千万
+                            if (item.year === 2024) return colorPalette.secondary[3]; // 回升
+                            return colorPalette.primary[0];
+                        }),
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '近十年中国出生人口趋势（2016-2025）',
+                            font: {
+                                size: 18
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `出生人口: ${context.raw}万人`;
+                                },
+                                afterLabel: function(context) {
+                                    const dataIndex = context.dataIndex;
+                                    return `同比变化: ${birthData[dataIndex].change}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 600,
+                            title: {
+                                display: true,
+                                text: '出生人口（万人）'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '年份'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 趋势图筛选函数
+            function filterTrendChart(year) {
+                if (year === 'all') {
+                    birthTrendChart.data.labels = birthData.map(item => item.year);
+                    birthTrendChart.data.datasets[0].data = birthData.map(item => item.population);
+                } else {
+                    const filteredData = birthData.filter(item => item.year.toString() === year);
+                    birthTrendChart.data.labels = filteredData.map(item => item.year);
+                    birthTrendChart.data.datasets[0].data = filteredData.map(item => item.population);
+                }
+                birthTrendChart.update();
+            }
+            
+            // 12. 对比分析图表1 - 青年生育意愿与人口趋势
+            const comparisonChart1Ctx = document.getElementById('comparisonChart1').getContext('2d');
+            new Chart(comparisonChart1Ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['有生育意愿', '看情况决定', '倾向于不生'],
+                    datasets: [
+                        {
+                            label: '调查数据(%)',
+                            data: [26.28, 40.71, 29.17],
+                            backgroundColor: colorPalette.primary[0],
+                            borderColor: colorPalette.primary[0],
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '出生人口变化(%)',
+                            data: [-8.7, -5.6, -9.9], // 2023-2025年变化趋势的代表值
+                            backgroundColor: colorPalette.secondary[0],
+                            borderColor: colorPalette.secondary[0],
+                            borderWidth: 1,
+                            type: 'line',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '青年生育意愿与人口变化趋势',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '调查比例(%)'
+                            },
+                            min: 0,
+                            max: 50
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: '人口变化(%)'
+                            },
+                            min: -15,
+                            max: 0,
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 13. 对比分析图表2 - 经济压力与人口变化
+            const comparisonChart2Ctx = document.getElementById('comparisonChart2').getContext('2d');
+            new Chart(comparisonChart2Ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['经济压力', '时间精力', '公共资源配套', '伴侣意愿', '长辈期待', '职业规划'],
+                    datasets: [
+                        {
+                            label: '调查数据(%)',
+                            data: [72.76, 49.68, 47.44, 42.95, 33.65, 21.47],
+                            backgroundColor: colorPalette.primary[1],
+                            borderColor: colorPalette.primary[1],
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '生育决策影响因素',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    xMin: 70,
+                                    xMax: 70,
+                                    borderColor: colorPalette.secondary[0],
+                                    borderWidth: 2,
+                                    label: {
+                                        display: true,
+                                        content: '经济压力是首要因素',
+                                        position: 'center',
+                                        backgroundColor: colorPalette.secondary[0],
+                                        color: 'white'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 80,
+                            title: {
+                                display: true,
+                                text: '百分比(%)'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
